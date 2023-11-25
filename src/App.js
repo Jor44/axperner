@@ -4,7 +4,7 @@ import Login from './login';
 function App() {
   return (
     <main className='App'>
-      <Login></Login>
+      <Login/>
     </main>
   );
 }
