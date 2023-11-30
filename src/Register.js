@@ -3,10 +3,12 @@ import { faCheck, faTimes, faInfoCircle, faL } from "@fortawesome/free-solid-svg
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import './index.css';
 import axios from "./api/axios";
+// import  registerUser  from "./userService";
+// import ApiService from "./apiService";
 
 const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
-const REGISTER_URL = '/register';
+const REGISTER_URL = 'http://localhost:8080/api/users/register';
 
 const Register = () => {
     const userRef = useRef();
@@ -53,33 +55,39 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        //if button enabled with JS hack
+        console.log("handleSubmit called")
+        // If the button is enabled through a JS hack,
+        // recheck the patterns before submitting.
         const v1 = USER_REGEX.test(user);
         const v2 = PWD_REGEX.test(pwd);
+        console.log(v1,v2)
         if (!v1 || !v2) {
-            setErrMsg("Invalid Entery");
+            setErrMsg("Invalid Entry");
             return;
         }
+    
         try {
-            const response = await axios.post(REGISTER_URL,
-                JSON.stringify({ user, pwd }),
-                {
-                    headers: { 'Content-Type': 'application/json' },
-                    withCredentials: true
-                });
-            setSuccess(true)
+            
+            const userData = { username: user, password: pwd }; // Assuming these are the fields expected by your backend
+
+            const response = await axios.post(REGISTER_URL, userData);
+            console.log("Response from backend:", response.data);
+            console.log(response.data); // Here you would probably do more with the response, like redirecting the user
+            setSuccess(true); // If registration is successful, you can set a flag to display a success message or redirect
+            // ... any additional logic for a successful registration
         } catch (err) {
+            console.error("Error during registration:", err);
             if (!err?.response) {
                 setErrMsg('No Server Response');
             } else if (err.response?.status === 409) {
                 setErrMsg('Username Taken');
             } else {
-                setErrMsg('Registration Failed')
+                setErrMsg('Registration Failed');
             }
-            errRef.current.focus();
+            errRef.current.focus(); // Focus on the error message for accessibility reasons
         }
     }
-
+    
     return (
         <>
             {
